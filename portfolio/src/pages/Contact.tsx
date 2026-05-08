@@ -19,7 +19,7 @@ const Contact: React.FC = () => {
     e.preventDefault();
     try {
       // 1. Save to MongoDB
-      const res = await fetch("http://localhost:5000/feedback", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/feedback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

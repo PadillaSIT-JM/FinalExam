@@ -4,11 +4,14 @@ import AdminDashboard from "./AdminDashboard";
 
 const AdminPage: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(
-    !!localStorage.getItem("admin-token") 
+    !!localStorage.getItem("token") 
   );
 
   return isLoggedIn
-    ? <AdminDashboard onLogout={() => setIsLoggedIn(false)} />
+    ? <AdminDashboard onLogout={() => {
+        localStorage.removeItem("token");
+        setIsLoggedIn(false);
+      }} />
     : <AdminLogin onLogin={() => setIsLoggedIn(true)} />;
 };
 

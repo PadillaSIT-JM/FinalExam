@@ -1,3 +1,5 @@
+import profileImage from '../assets/5433ad2c-8996-4dc1-b92a-488808a400be.jpg';
+
 function Home() {
   return (
     <section style={{ padding: "48px 40px", borderBottom: "0.5px solid #36255b", background: "#b18bff" }}>
@@ -9,7 +11,7 @@ function Home() {
             justifyContent: "center", textAlign: "center", padding: "40px" }}>
             
             <img
-                src="/src/assets/5433ad2c-8996-4dc1-b92a-488808a400be.jpg"  
+                src={profileImage}  
                 style={{
                 width: 170,
                 height: 170,

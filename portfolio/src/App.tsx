@@ -5,6 +5,7 @@ import Projects from "./pages/Projects";
 import Contact from "./pages/Contact";
 import NavBar from "./pages/NavBar";
 import AdminPage from "./Admin/AdminPage";
+import ProtectedRoute from "./Admin/ProtectedRoute";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import "./App.css";

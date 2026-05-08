@@ -21,7 +21,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const [replyingId, setReplyingId] = useState<string | null>(null);
   const [replyMessage, setReplyMessage] = useState("");
 
-  const token = localStorage.getItem("admin-token") || "";
+  const token = localStorage.getItem("token") || "";
 
   const inp: React.CSSProperties = {
     padding: "8px 12px", fontSize: 13, borderRadius: 8,
@@ -30,8 +30,8 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   };
 
   useEffect(() => {
-    fetch("http://localhost:5000/admin/submissions", {
-      headers: { Authorization: token },
+    fetch(`${import.meta.env.VITE_API_URL}/admin/submissions`, {
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
       .then(data => setSubmissions(data))
@@ -41,9 +41,9 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   // CREATE
   const handleCreate = async () => {
     try {
-      const res = await fetch("http://localhost:5000/admin/submissions", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/submissions`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: token },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(newData),
       });
       const created = await res.json();
@@ -58,9 +58,9 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   // UPDATE
   const handleUpdate = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:5000/admin/submissions/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/submissions/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: token },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(editData),
       });
       const updated = await res.json();
@@ -76,9 +76,9 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this?")) return;
     try {
-      await fetch(`http://localhost:5000/admin/submissions/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/admin/submissions/${id}`, {
         method: "DELETE",
-        headers: { Authorization: token },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setSubmissions(prev => prev.filter(s => s._id !== id));
       setStatus(prev => ({ ...prev, [id]: "Deleted" }));

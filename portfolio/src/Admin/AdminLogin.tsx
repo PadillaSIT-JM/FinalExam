@@ -7,14 +7,14 @@ const AdminLogin: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/admin/login", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       });
       const data = await res.json();
       if (data.success) {
-        localStorage.setItem("admin-token", data.token); // save token
+        localStorage.setItem("token", data.token); // save token
         onLogin();
       } else {
         setError("Invalid username or password");
