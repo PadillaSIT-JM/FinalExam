@@ -2,9 +2,13 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const https = require("https");
+const jwt = require("jsonwebtoken");
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://finalexam-bo87.onrender.com',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/bootstrap', express.static('node_modules/bootstrap/dist'));
@@ -61,10 +65,32 @@ function sendEmailJS(templateParams) {
 const ADMIN_USERNAME = "Jm Padilla";
 const ADMIN_PASSWORD = "Padilla4114";
 
+// Middleware to verify JWT token
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  const token = authHeader.split(' ')[1]; // Remove 'Bearer ' prefix
+  if (!token) {
+    return res.status(401).json({ message: "Invalid token format" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_secret_key");
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(401).json({ message: "Invalid token" });
+  }
+};
+
 app.post("/admin/login", (req, res) => {
   const { username, password } = req.body;
   if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-    res.json({ success: true, token: "Bearer admin-token" });
+    const token = jwt.sign({ username }, process.env.JWT_SECRET || "your_secret_key", { expiresIn: "24h" });
+    res.json({ success: true, token });
   } else {
     res.status(401).json({ success: false, message: "Invalid credentials" });
   }
@@ -94,12 +120,7 @@ app.post("/feedback", async (req, res) => {
   }
 });
 
-app.get("/admin/submissions", async (req, res) => {
-  const token = req.headers.authorization;
-  if (token !== "Bearer admin-token") {
-    return res.status(401).json({ success: false, message: "Unauthorized" });
-  }
-
+app.get("/admin/submissions", verifyToken, async (req, res) => {
   try {
     const data = await User.find();
     res.json(data);
@@ -108,12 +129,7 @@ app.get("/admin/submissions", async (req, res) => {
   }
 });
 
-app.post("/admin/submissions", async (req, res) => {
-  const token = req.headers.authorization;
-  if (token !== "Bearer admin-token") {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
+app.post("/admin/submissions", verifyToken, async (req, res) => {
   try {
     const user = await User.create(req.body);
     res.json(user);
@@ -122,12 +138,7 @@ app.post("/admin/submissions", async (req, res) => {
   }
 });
 
-app.put("/admin/submissions/:id", async (req, res) => {
-  const token = req.headers.authorization;
-  if (token !== "Bearer admin-token") {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
+app.put("/admin/submissions/:id", verifyToken, async (req, res) => {
   try {
     const updated = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updated);
@@ -136,12 +147,7 @@ app.put("/admin/submissions/:id", async (req, res) => {
   }
 });
 
-app.delete("/admin/submissions/:id", async (req, res) => {
-  const token = req.headers.authorization;
-  if (token !== "Bearer admin-token") {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
+app.delete("/admin/submissions/:id", verifyToken, async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
     res.json({ message: "Deleted successfully" });
@@ -151,10 +157,11 @@ app.delete("/admin/submissions/:id", async (req, res) => {
 });
 
 mongoose
-  .connect("mongodb+srv://20253152_db_user:wPtg2ELVaOvwevaa@cluster0.bw4gecl.mongodb.net/aptech?retryWrites=true&w=majority")
+  .connect(process.env.MONGODB_URI || "mongodb+srv://20253152_db_user:wPtg2ELVaOvwevaa@cluster0.bw4gecl.mongodb.net/aptech?retryWrites=true&w=majority")
   .then(() => {
     console.log("Connected to MongoDB");
-    app.listen(5000, () => console.log("Server running on port 5000"));
+    const port = process.env.PORT || 5000;
+    app.listen(port, () => console.log(`Server running on port ${port}`));
   })
   .catch((err) => {
     console.error("MongoDB connection failed:", err);
