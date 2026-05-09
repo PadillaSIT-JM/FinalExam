@@ -18,6 +18,9 @@ const Contact: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submission started, API_BASE:", API_BASE);
+    console.log("Form data:", formData);
+    
     try {
       // 1. Save to MongoDB
       const res = await fetch(`${API_BASE}/feedback`, {
@@ -25,13 +28,25 @@ const Contact: React.FC = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+      
+      console.log("Response status:", res.status, "OK:", res.ok);
+      console.log("Response headers:", [...res.headers.entries()]);
+      
       const text = await res.text();
+      console.log("Response text:", text);
+      
       if (!res.ok) {
         console.error("Server error:", res.status, res.statusText, "Raw response:", text);
         throw new Error(text || `Server error: ${res.status}`);
       }
-      if (!text) throw new Error("Empty response from server");
+      
+      if (!text) {
+        console.error("Empty response body received");
+        throw new Error("Empty response from server");
+      }
+      
       const data = JSON.parse(text);
+      console.log("Parsed data:", data);
 
       // 2. Send email via EmailJS
       await emailjs.sendForm(
@@ -44,6 +59,7 @@ const Contact: React.FC = () => {
       alert(data.message);
       setFormData({ YourName: "", YourEmail: "", ContactNumber: "", SendMessage: "" });
     } catch (error) {
+      console.error("Full error:", error);
       alert(`Failed: ${error instanceof Error ? error.message : error}`);
     }
   };
