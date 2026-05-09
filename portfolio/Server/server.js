@@ -98,18 +98,31 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-app.post("/admin/login", (req, res) => {
-  const { username, password } = req.body;
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-    const token = jwt.sign({ username }, process.env.JWT_SECRET || "your_secret_key", { expiresIn: "24h" });
-    res.json({ success: true, token });
-  } else {
-    res.status(401).json({ success: false, message: "Invalid credentials" });
+app.post("/admin/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ success: false, message: "Username and password are required" });
+    }
+
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      const token = jwt.sign({ username }, process.env.JWT_SECRET || "your_secret_key", { expiresIn: "24h" });
+      return res.json({ success: true, token });
+    }
+
+    return res.status(401).json({ success: false, message: "Invalid credentials" });
+  } catch (err) {
+    console.error("Login error:", err);
+    return res.status(500).json({ success: false, message: err.message || "Login failed" });
   }
 });
 
 app.post("/feedback", async (req, res) => {
   console.log("POST /feedback body:", req.body);
+
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({ error: "Request body is required" });
+  }
 
   try {
     const user = await User.create(req.body);
@@ -125,10 +138,10 @@ app.post("/feedback", async (req, res) => {
       console.error("Email error:", emailErr);
     }
 
-    res.json({ message: "Portfolio Contacts submitted successfully", user });
+    return res.json({ message: "Portfolio Contacts submitted successfully", user });
   } catch (err) {
     console.error("Error saving portfolio contacts:", err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 });
 
@@ -153,23 +166,39 @@ app.post("/admin/submissions", verifyToken, async (req, res) => {
 app.put("/admin/submissions/:id", verifyToken, async (req, res) => {
   try {
     const updated = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updated);
+    if (!updated) {
+      return res.status(404).json({ error: "Submission not found" });
+    }
+    return res.json(updated);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Update route error:", err);
+    return res.status(500).json({ error: err.message });
   }
 });
 
 app.delete("/admin/submissions/:id", verifyToken, async (req, res) => {
   try {
-    await User.findByIdAndDelete(req.params.id);
-    res.json({ message: "Deleted successfully" });
+    const deleted = await User.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ error: "Submission not found" });
+    }
+    return res.json({ message: "Deleted successfully" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Delete route error:", err);
+    return res.status(500).json({ error: err.message });
   }
 });
 
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
+});
+
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  if (res.headersSent) {
+    return next(err);
+  }
+  res.status(500).json({ message: err.message || "Internal Server Error" });
 });
 
 mongoose
