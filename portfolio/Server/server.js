@@ -5,9 +5,21 @@ const https = require("https");
 const jwt = require("jsonwebtoken");
 const app = express();
 
+const allowedOrigins = [
+  process.env.CORS_ORIGIN || 'https://finalexam-bo87.onrender.com',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+];
+
 app.use(cors({
-  origin: 'https://finalexam-bo87.onrender.com',
-  credentials: true
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS policy: Origin not allowed'));
+    }
+  },
+  credentials: true,
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -154,6 +166,10 @@ app.delete("/admin/submissions/:id", verifyToken, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
 });
 
 mongoose

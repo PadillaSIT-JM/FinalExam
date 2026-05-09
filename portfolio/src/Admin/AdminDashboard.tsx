@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import emailjs from "@emailjs/browser";
+import { fetchJson } from "../utils/fetchJson";
 
 interface Submission {
   _id: string;
@@ -30,45 +31,44 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   };
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/admin/submissions`, {
+    fetchJson(`${import.meta.env.VITE_API_URL}/admin/submissions`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => res.json())
       .then(data => setSubmissions(data))
       .catch(console.error);
-  }, []);
+  }, [token]);
 
   // CREATE
   const handleCreate = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/submissions`, {
+      const created = await fetchJson(`${import.meta.env.VITE_API_URL}/admin/submissions`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(newData),
       });
-      const created = await res.json();
       setSubmissions(prev => [created, ...prev]);
       setNewData(empty);
       setShowCreate(false);
-    } catch {
-      alert("Create failed");
+    } catch (error) {
+      console.error("Create failed:", error);
+      alert(error instanceof Error ? error.message : "Create failed");
     }
   };
 
   // UPDATE
   const handleUpdate = async (id: string) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/submissions/${id}`, {
+      const updated = await fetchJson(`${import.meta.env.VITE_API_URL}/admin/submissions/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(editData),
       });
-      const updated = await res.json();
       setSubmissions(prev => prev.map(s => s._id === id ? updated : s));
       setEditingId(null);
       setStatus(prev => ({ ...prev, [id]: "Updated!" }));
-    } catch {
-      setStatus(prev => ({ ...prev, [id]: "Update failed" }));
+    } catch (error) {
+      console.error("Update failed:", error);
+      setStatus(prev => ({ ...prev, [id]: error instanceof Error ? error.message : "Update failed" }));
     }
   };
 
@@ -110,7 +110,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("admin-token");
+    localStorage.removeItem("token");
     onLogout();
   };
 

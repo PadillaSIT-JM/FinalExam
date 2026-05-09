@@ -7,8 +7,6 @@ function NavBar() {
 
   useEffect(() => {
     let index = 0;
-    // Clear text if the component re-renders
-    setDisplayedText(""); 
 
     const interval = setInterval(() => {
       if (index < fullText.length) {

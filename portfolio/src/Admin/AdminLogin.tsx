@@ -12,15 +12,27 @@ const AdminLogin: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       });
-      const data = await res.json();
+      const text = await res.text();
+      if (!res.ok) {
+        console.error("Login failed:", res.status, res.statusText, "Raw body:", text);
+        setError(text || "Server error");
+        return;
+      }
+      if (!text) {
+        setError("Empty response from server");
+        return;
+      }
+
+      const data = JSON.parse(text);
       if (data.success) {
         localStorage.setItem("token", data.token); // save token
         onLogin();
       } else {
-        setError("Invalid username or password");
+        setError(data.message || "Invalid username or password");
       }
-    } catch {
-      setError("Server error");
+    } catch (error) {
+      console.error("Login exception:", error);
+      setError(error instanceof Error ? error.message : "Server error");
     }
   };
 

@@ -24,7 +24,13 @@ const Contact: React.FC = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      if (!res.ok) throw new Error(await res.text());
+      const text = await res.text();
+      if (!res.ok) {
+        console.error("Server error:", res.status, res.statusText, "Raw response:", text);
+        throw new Error(text || `Server error: ${res.status}`);
+      }
+      if (!text) throw new Error("Empty response from server");
+      const data = JSON.parse(text);
 
       // 2. Send email via EmailJS
       await emailjs.sendForm(
@@ -34,7 +40,7 @@ const Contact: React.FC = () => {
         "i1oM4PfIynkEBV7iJ"
       );
 
-      alert((await res.json()).message);
+      alert(data.message);
       setFormData({ YourName: "", YourEmail: "", ContactNumber: "", SendMessage: "" });
     } catch (error) {
       alert(`Failed: ${error instanceof Error ? error.message : error}`);
