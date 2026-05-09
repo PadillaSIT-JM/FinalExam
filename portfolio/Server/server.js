@@ -75,8 +75,9 @@ function sendEmailJS(templateParams) {
   });
 }
 
-const ADMIN_USERNAME = "Jm Padilla";
-const ADMIN_PASSWORD = "Padilla4114";
+// ✅ FIX: Credentials moved to environment variables
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -86,7 +87,7 @@ const verifyToken = (req, res, next) => {
   if (!token) return res.status(401).json({ message: "Invalid token format" });
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_secret_key");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {
@@ -101,7 +102,7 @@ app.post("/admin/login", async (req, res) => {
       return res.status(400).json({ success: false, message: "Username and password are required" });
     }
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-      const token = jwt.sign({ username }, process.env.JWT_SECRET || "your_secret_key", { expiresIn: "24h" });
+      const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: "24h" });
       return res.json({ success: true, token });
     }
     return res.status(401).json({ success: false, message: "Invalid credentials" });
@@ -110,7 +111,6 @@ app.post("/admin/login", async (req, res) => {
   }
 });
 
-// ✅ FIXED: merged /feedback and orphaned try block into one route
 app.post('/feedback', async (req, res) => {
   try {
     const user = await User.create(req.body);
@@ -126,7 +126,12 @@ app.post('/feedback', async (req, res) => {
       console.error("Email error:", emailErr);
     }
 
-    return res.json({ message: "Portfolio Contacts submitted successfully", user });
+    // ✅ FIX: Moved the success response inside this route where it belongs
+    return res.status(200).json({
+      success: true,
+      message: "Form received!",
+      user,
+    });
   } catch (err) {
     console.error("Error saving portfolio contacts:", err);
     return res.status(500).json({ error: err.message });
@@ -182,7 +187,7 @@ app.use((err, req, res, next) => {
 });
 
 mongoose
-  .connect(process.env.MONGODB_URI || "mongodb+srv://20253152_db_user:wPtg2ELVaOvwevaa@cluster0.bw4gecl.mongodb.net/aptech?retryWrites=true&w=majority")
+  .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("Connected to MongoDB");
     const port = process.env.PORT || 5000;
