@@ -7,13 +7,17 @@ const app = express();
 
 const allowedOrigins = [
   process.env.CORS_ORIGIN || 'https://finalexam-bo87.onrender.com',
+  'https://finalexamaptech.onrender.com',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:5174',
   'http://127.0.0.1:5174',
   'http://localhost:5175',
   'http://127.0.0.1:5175',
+  'https://finalexamaptech.onrender.com'
 ];
+
+
 
 app.use(cors({
   origin: (origin, callback) => {
