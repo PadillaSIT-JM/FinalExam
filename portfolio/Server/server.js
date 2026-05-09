@@ -27,7 +27,6 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/bootstrap', express.static('node_modules/bootstrap/dist'));
 
 const userSchema = new mongoose.Schema({
   YourName: String,
@@ -60,9 +59,7 @@ function sendEmailJS(templateParams) {
 
     const req = https.request(options, (res) => {
       let data = '';
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
+      res.on('data', (chunk) => { data += chunk; });
       res.on('end', () => {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(data);
@@ -81,17 +78,12 @@ function sendEmailJS(templateParams) {
 const ADMIN_USERNAME = "Jm Padilla";
 const ADMIN_PASSWORD = "Padilla4114";
 
-// Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ message: "No token provided" });
-  }
+  if (!authHeader) return res.status(401).json({ message: "No token provided" });
 
-  const token = authHeader.split(' ')[1]; // Remove 'Bearer ' prefix
-  if (!token) {
-    return res.status(401).json({ message: "Invalid token format" });
-  }
+  const token = authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ message: "Invalid token format" });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_secret_key");
@@ -108,26 +100,18 @@ app.post("/admin/login", async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({ success: false, message: "Username and password are required" });
     }
-
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
       const token = jwt.sign({ username }, process.env.JWT_SECRET || "your_secret_key", { expiresIn: "24h" });
       return res.json({ success: true, token });
     }
-
     return res.status(401).json({ success: false, message: "Invalid credentials" });
   } catch (err) {
-    console.error("Login error:", err);
-    return res.status(500).json({ success: false, message: err.message || "Login failed" });
+    return res.status(500).json({ success: false, message: err.message });
   }
 });
 
-app.post("/feedback", async (req, res) => {
-  console.log("POST /feedback body:", req.body);
-
-  if (!req.body || Object.keys(req.body).length === 0) {
-    return res.status(400).json({ error: "Request body is required" });
-  }
-
+// ✅ FIXED: merged /feedback and orphaned try block into one route
+app.post('/feedback', async (req, res) => {
   try {
     const user = await User.create(req.body);
 
@@ -170,12 +154,9 @@ app.post("/admin/submissions", verifyToken, async (req, res) => {
 app.put("/admin/submissions/:id", verifyToken, async (req, res) => {
   try {
     const updated = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) {
-      return res.status(404).json({ error: "Submission not found" });
-    }
+    if (!updated) return res.status(404).json({ error: "Submission not found" });
     return res.json(updated);
   } catch (err) {
-    console.error("Update route error:", err);
     return res.status(500).json({ error: err.message });
   }
 });
@@ -183,12 +164,9 @@ app.put("/admin/submissions/:id", verifyToken, async (req, res) => {
 app.delete("/admin/submissions/:id", verifyToken, async (req, res) => {
   try {
     const deleted = await User.findByIdAndDelete(req.params.id);
-    if (!deleted) {
-      return res.status(404).json({ error: "Submission not found" });
-    }
+    if (!deleted) return res.status(404).json({ error: "Submission not found" });
     return res.json({ message: "Deleted successfully" });
   } catch (err) {
-    console.error("Delete route error:", err);
     return res.status(500).json({ error: err.message });
   }
 });
@@ -199,9 +177,7 @@ app.use((req, res) => {
 
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
-  if (res.headersSent) {
-    return next(err);
-  }
+  if (res.headersSent) return next(err);
   res.status(500).json({ message: err.message || "Internal Server Error" });
 });
 
