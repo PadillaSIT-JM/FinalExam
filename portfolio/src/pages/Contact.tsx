@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
+import { API_BASE } from "../utils/api";
 
 const Contact: React.FC = () => {
   const formRef = useRef<HTMLFormElement>(null);
@@ -19,7 +20,7 @@ const Contact: React.FC = () => {
     e.preventDefault();
     try {
       // 1. Save to MongoDB
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/feedback`, {
+      const res = await fetch(`${API_BASE}/feedback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

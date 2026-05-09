@@ -6,7 +6,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const token = localStorage.getItem('token');
-  return token ? <>{children}</> : <Navigate to="/admin" replace />;
+  return token ? <>{children}</> : <Navigate to="/" replace />;
 };
 
 export default ProtectedRoute;

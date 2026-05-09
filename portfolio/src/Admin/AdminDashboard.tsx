@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import emailjs from "@emailjs/browser";
 import { fetchJson } from "../utils/fetchJson";
+import { API_BASE } from "../utils/api";
 
 interface Submission {
   _id: string;
@@ -31,7 +32,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   };
 
   useEffect(() => {
-    fetchJson(`${import.meta.env.VITE_API_URL}/admin/submissions`, {
+    fetchJson(`${API_BASE}/admin/submissions`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(data => setSubmissions(data))
@@ -41,7 +42,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   // CREATE
   const handleCreate = async () => {
     try {
-      const created = await fetchJson(`${import.meta.env.VITE_API_URL}/admin/submissions`, {
+      const created = await fetchJson(`${API_BASE}/admin/submissions`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(newData),
@@ -58,7 +59,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   // UPDATE
   const handleUpdate = async (id: string) => {
     try {
-      const updated = await fetchJson(`${import.meta.env.VITE_API_URL}/admin/submissions/${id}`, {
+      const updated = await fetchJson(`${API_BASE}/admin/submissions/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(editData),
@@ -76,7 +77,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this?")) return;
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/admin/submissions/${id}`, {
+      await fetch(`${API_BASE}/admin/submissions/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

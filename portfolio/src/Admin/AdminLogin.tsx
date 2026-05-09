@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_BASE } from "../utils/api";
 
 const AdminLogin: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
@@ -7,7 +8,7 @@ const AdminLogin: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/login`, {
+      const res = await fetch(`${API_BASE}/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
