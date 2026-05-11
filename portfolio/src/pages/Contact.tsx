@@ -85,9 +85,7 @@ const Contact: React.FC = () => {
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#b18bff" }}>
       <div style={{ background: "#aa34ff", borderRadius: 16, padding: 40, width: "100%", maxWidth: 480, boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}>
         <h2 style={{ textAlign: "center", marginBottom: 6 }}>CONTACT</h2>
-        <p style={{ textAlign: "center", color: "#000000", fontSize: 14, marginBottom: 24 }}>
-          Fill out the form and I'll get back to you.
-        </p>
+        
 
         <form ref={formRef} onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <input style={inp} type="text"   name="YourName"      placeholder="Full Name"      value={formData.YourName}      onChange={handleChange} required />
