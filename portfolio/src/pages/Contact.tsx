@@ -56,10 +56,10 @@ const Contact: React.FC = () => {
 
       // 2. Send email via EmailJS
       await emailjs.sendForm(
-        "service_t9fpon7",
-        "template_maib9fa",
+        "service_qb71g12",
+        "template_le744o5",
         formRef.current!,
-        "i1oM4PfIynkEBV7iJ"
+        "V-sRyho1dKt1DzIiT"
       );
 
       alert(message);
