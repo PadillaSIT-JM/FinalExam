@@ -119,18 +119,24 @@ app.post('/feedback', async (req, res) => {
   try {
     const user = await User.create(req.body);
 
-    try {
-      const emailResult = await sendEmailJS({
-    from_name: formData.name,
-    from_email: formData.email,
-    message: formData.message,
-      });
-      console.log("Email sent:", emailResult);
-    } catch (emailErr) {
-      console.error("Email error:", emailErr);
-    }
-
-    // ✅ FIX: Moved the success response inside this route where it belongs
+ try {
+        const response = await emailjs.send(
+        import.meta.env.VITE_EMAIL_SERVICE_ID,
+        import.meta.env.VITE_EMAIL_TEMPLATE_ID,
+        {
+        from_Email: formData.name,
+        from_name: formData.email,
+        message: formData.message,
+        },
+        import.meta.env.VITE_EMAIL_PUBLIC_KEY
+        );
+        console.log("SUCCESS:", response);
+        setStatus("Message sent successfully!");
+        setFormData({
+        name: "",
+        email: "",
+        message: "",
+   
     return res.status(200).json({
       success: true,
       message: "Form received!",
