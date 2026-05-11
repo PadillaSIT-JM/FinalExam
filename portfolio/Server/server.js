@@ -121,9 +121,9 @@ app.post('/feedback', async (req, res) => {
 
     try {
       const emailResult = await sendEmailJS({
-        from_name: req.body.YourName,
-        from_email: req.body.YourEmail,
-        message: req.body.SendMessage,
+    from_name: formData.name,
+    from_email: formData.email,
+    message: formData.message,
       });
       console.log("Email sent:", emailResult);
     } catch (emailErr) {
