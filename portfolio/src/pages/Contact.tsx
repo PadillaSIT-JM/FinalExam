@@ -76,6 +76,7 @@ const Contact: React.FC = () => {
     borderRadius: 8,
     border: "0.5px solid #ddd",
     background: "#000000",
+    color: "#ffffff",
     width: "100%",
     fontFamily: "inherit",
     outline: "none",
