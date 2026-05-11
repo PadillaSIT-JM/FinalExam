@@ -37,7 +37,7 @@ const Contact: React.FC = () => {
         throw new Error(errText || `Server error: ${res.status}`);
       }
 
-      // ✅ FIX: Check if response body is empty before calling .json()
+    
       const contentLength = res.headers.get("content-length");
       const contentType = res.headers.get("content-type") || "";
       const isEmptyBody = res.status === 204 || contentLength === "0";
@@ -85,7 +85,7 @@ const Contact: React.FC = () => {
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#b18bff" }}>
       <div style={{ background: "#aa34ff", borderRadius: 16, padding: 40, width: "100%", maxWidth: 480, boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}>
         <h2 style={{ textAlign: "center", marginBottom: 6 }}>CONTACT</h2>
-        <p style={{ textAlign: "center", color: "#7d4dff", fontSize: 14, marginBottom: 24 }}>
+        <p style={{ textAlign: "center", color: "#000000", fontSize: 14, marginBottom: 24 }}>
           Fill out the form and I'll get back to you.
         </p>
 
