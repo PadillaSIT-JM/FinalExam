@@ -45,9 +45,9 @@ const User = mongoose.model("portfolio", userSchema, "portfolio");
 function sendEmailJS(templateParams) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
-      service_id: 'service_t9fpon7',
-      template_id: 'template_maib9fa',
-      user_id: 'i1oM4PfIynkEBV7iJ',
+      service_id: 'service_qb71g12',
+      template_id: ' template_le744o5',
+      user_id: ' V-sRyho1dKt1DzIiT',
       template_params: templateParams,
     });
 
